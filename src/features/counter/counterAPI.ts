@@ -42,7 +42,7 @@ const fetchTodo = async (id: string) => {
 }
 
 const addTodo = async (id: string, todos: string) => {
-  var todo = await instance.post(`/public/v2/users/${id}/todos` ,  {'todo': todos})
+  var todo = await instance.post(`/public/v2/users/${id}/todos`, { 'todo': todos })
   console.log(todo.data);
 
   return todo.data
@@ -54,26 +54,19 @@ const addUsr = async (dtm: User) => {
   const { id, ...rest } = dtm;
   var user = await instance.post(`/public/v2/users`, { rest });
 
-  return new Promise<{ data: boolean }>((resolve, reject) => {
-    setTimeout(() => resolve({ data: true }), 500);
-  })
+  return user.data;
 }
 
 const updateUsr = async (dtm: User) => {
   console.log("update", dtm);
   var user = await instance.put(`/public/v2/users/${dtm.id}`);
   console.log("updateuser", user);
-  return new Promise<{ data: boolean }>((resolve, reject) => {
-    setTimeout(() => resolve({ data: true }), 500);
-  })
+  return user.data;
 }
 
 const deleteUsr = async (id: string) => {
-
   var del = await instance.delete(`/public/v2/users/${id}`);
-  return new Promise<{ data: boolean }>((resolve, reject) => {
-    setTimeout(() => resolve({ data: true }), 500);
-  })
+  return del.data;
 }
 
 
