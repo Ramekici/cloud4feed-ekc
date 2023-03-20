@@ -29,16 +29,16 @@ export function fetchAuth(dtm: AuthData) {
 
 const fetchUsers = async () => {
   var user = await instance.get('/public/v2/users')
-  console.log(user.data);
-
   return user.data
 }
 
 const fetchTodo = async (id: string) => {
-  var todo = await instance.get(`/public/v2/users/${id}/todos`)
-  console.log(todo.data);
-
-  return todo.data
+  try {
+    var todo = await instance.get(`/public/v2/users/${id}/todos`);
+    return todo.data
+  } catch (err) {
+    return []
+  }
 }
 
 const addTodo = async (id: string, todos: string) => {

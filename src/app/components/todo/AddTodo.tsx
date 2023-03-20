@@ -1,10 +1,10 @@
 import { Formik } from 'formik';
-import React, { useState } from 'react'
+import React from 'react'
 import { useAppDispatch } from '../../hooks';
 import cn from 'classnames';
 import { addTodoAsync } from '../../../features/counter/todosSlice';
 
-const AddTodo: React.FC<({ openModal: boolean, setModalOpen: (pos: boolean) => void, itemId: string })> =
+const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId: string })> =
     ({ openModal, setModalOpen, itemId }) => {
         const dispatch = useAppDispatch();
 
@@ -56,11 +56,10 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: (pos: boolean) => v
                                 <div className="modal-content">
                                     <div className="modal-header">
                                         <h5 className="modal-title" id="exampleModalLabel"> Add </h5>
-                                        <button type="button" className="close"
-                                            onClick={() => {
-                                                setModalOpen(false)
-
-                                            }}
+                                        <button type="button" className="close btn btn-lg"
+                                            onClick={() =>
+                                                setModalOpen()
+                                            }
                                             data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -79,9 +78,9 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: (pos: boolean) => v
                                     </div>
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary"
-                                            onClick={() => {
-                                                setModalOpen(false)
-                                            }}
+                                            onClick={() =>
+                                                setModalOpen()
+                                            }
                                             data-dismiss="modal">Close</button>
                                         <button type="submit" className="btn btn-primary">Add</button>
                                     </div>

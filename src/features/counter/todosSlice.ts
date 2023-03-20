@@ -4,8 +4,17 @@ import { AuthData } from './authSlice';
 import { addTodo, fetchAuth, fetchTodo } from './counterAPI';
 
 export interface TodosState {
-  value: Array<any>;
+  value: Array<Todos>;
   status: 'idle' | 'loading' | 'failed';
+}
+
+
+export interface Todos {
+  due_on: string;
+  id: number;
+  status: string;
+  title: string;
+  user_id: number
 }
 
 
@@ -20,7 +29,6 @@ export const fetchTodoAsync = createAsyncThunk(
   '/public/v2/users/:id/todos',
   async (id: string) => {
     const response = await fetchTodo(id);
-    // The value we return becomes the `fulfilled` action payload
     return response;
   }
 );

@@ -1,10 +1,10 @@
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { useAppDispatch } from '../../hooks';
 import cn from 'classnames';
 import { asyncUpdateUser, User, asyncAddUser } from '../../../features/counter/counterSlice';
 
-const AddModal: React.FC<{ openModal: boolean, setModalOpen: (pos: boolean) => void, user?: User }> =
+const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: User }> =
     ({ openModal, setModalOpen, user }) => {
         const dispatch = useAppDispatch();
         const [initialValues, setInitial] = useState({ email: '', name: '', gender: '', status: '' })
@@ -17,6 +17,11 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: (pos: boolean) => v
         }, [
             user
         ])
+
+        const radioOptions = [
+            { key: 'Option 1', value: 'Male' },
+            { key: 'Option 2', value: 'Female' },
+        ];
 
         return (
             <div className={cn("modal fade", { 'show': openModal })}
@@ -69,13 +74,13 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: (pos: boolean) => v
                                 <div className="modal-content">
                                     <div className="modal-header">
                                         <h5 className="modal-title" id="exampleModalLabel">{user !== undefined ? 'Update' : 'Add'}</h5>
-                                        <button type="button" className="close"
+                                        <button type="button" className="close btn btn-lg"
                                             onClick={() => {
-                                                setModalOpen(false)
+                                                setModalOpen()
                                                 setInitial({ email: '', name: '', gender: '', status: '' })
                                             }}
                                             data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
+                                            <span aria-hidden="true" className=''>&times;</span>
                                         </button>
                                     </div>
                                     <div className="modal-body">
@@ -98,32 +103,81 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: (pos: boolean) => v
                                             onBlur={handleBlur}
                                             value={values.email}
                                         />
+
                                         {errors.email && touched.email && errors.email}
-                                        <input
-                                            className='form-control mb-3'
-                                            type="text"
-                                            placeholder='Gender'
-                                            name="gender"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values.gender}
-                                        />
+
+
                                         {errors.gender && touched.gender && errors.gender}
-                                        <input
-                                            className='form-control mb-3'
-                                            type="text"
-                                            placeholder='Status'
+                                        <select
+                                            className='form-control'
+
                                             name="status"
+                                            value={values.status}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            value={values.status}
-                                        />
-                                        {errors.status && touched.status && errors.status}
+                                            style={{ display: "block" }}
+                                        >
+                                            <option value="" label="Select a status">
+                                                Select a status{" "}
+                                            </option>
+                                            <option value="active" label="active">
+                                                {" "}
+                                                Active
+                                            </option>
+                                            <option value="inactive" label="inactive">
+                                                Not Activated
+                                            </option>
+
+                                        </select>
+                                        {errors.status && <div className="input-feedback">{errors.status}</div>}
+                                       
+                                        <div className="row my-3">
+                                               <div className="col-12 mb-3">
+                                               <label
+                                                    className="form-control-label"
+                                                    htmlFor="male"
+                                                >
+                                                    Gender
+                                                </label>
+                                               </div>
+                                            <div className="col-6">
+                                                <input
+                                                    id="male"
+                                                    type="radio"
+                                                    value="male"
+                                                    name='gender'
+                                                    onChange={handleChange}
+                                                    defaultChecked={values.gender === "male"}
+                                                />
+                                                <label
+                                                    className="ps-2 form-control-label"
+                                                    htmlFor="male"
+                                                >
+                                                    Male
+                                                </label>
+                                            </div>
+                                            <div className="col-6">
+                                                <input
+                                                    id="female"
+                                                    type="radio"
+                                                    value="female"
+                                                    name='gender'
+                                                    onChange={handleChange}
+                                                    defaultChecked={values.gender === "female"}
+                                                />
+                                                <label
+                                                    className="ps-2 form-control-label"
+                                                    htmlFor="female"
+                                                >
+                                                    Female
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary"
                                             onClick={() => {
-                                                setModalOpen(false)
+                                                setModalOpen()
                                                 setInitial({ email: '', name: '', gender: '', status: '' })
                                             }}
                                             data-dismiss="modal">Close</button>

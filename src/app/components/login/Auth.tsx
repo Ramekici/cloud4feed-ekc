@@ -1,12 +1,22 @@
 import { Formik } from 'formik';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router';
-import { authAsync, AuthData } from '../../../features/counter/authSlice';
+import { authAsync } from '../../../features/counter/authSlice';
 import { useAppDispatch } from '../../hooks';
+import { object, string } from 'yup'
+import classNames from 'classnames';
+import Eye from './Eye';
+
+const validation = object().shape({
+    name: string().required("Kullanici adi gerekli!").min(3),
+    token: string().required("Token gerekli!").min(3),
+});
 
 export default function Auth() {
     let navigate = useNavigate();
     let location = useLocation();
+
+    const [showPass, setShowPass] = useState<boolean>(false)
 
     let from = location.state?.from?.pathname || "/";
 
@@ -20,55 +30,41 @@ export default function Auth() {
         }
     }, [])
 
-    // function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    //     event.preventDefault();
-
-    //     let formData = new FormData(event.currentTarget);
-    //     let username = formData.get("user") as string;
-
-    //     // auth.signin(username, () => {
-    //     //   // Send them back to the page they tried to visit when they were
-    //     //   // redirected to the login page. Use { replace: true } so we don't create
-    //     //   // another entry in the history stack for the login page.  This means that
-    //     //   // when they get to the protected page and click the back button, they
-    //     //   // won't end up back on the login page, which is also really nice for the
-    //     //   // user experience.
-    //     //   navigate(from, { replace: true });
-    //     // });
-    // }
-
     const dispatch = useAppDispatch();
 
     return (
         <div className='h-100 row'>
-            <div className='col-md-5 col-lg-4 mx-auto'>
+            <div className='col-md-5 col-lg-4 mx-auto border-1'>
                 <h1 className='mb-5'>Login</h1>
                 <Formik
                     initialValues={{ name: '', token: '' }}
-                    validate={values => {
-                        let errors = {};
-                        if (!values.name) {
-                            // errors.name = '';
-                            errors = { ...errors, 'name': 'Required' };
-                            // } else if (
-                            //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                            // ) {
-                            //     errors = { ...errors, 'name': 'Invalid email address.' };
-                            //     //    errors.name = 'Invalid email address.';
-                            // }
-                        }
-                        else if (!values.token) {
-                            errors = { ...errors, 'token': 'Required' };
-                            // } else if (
-                            //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                            // ) {
-                            //     errors = { ...errors, 'token': 'Invalid token.' };
+                    validationSchema={validation}
+                    // validate={
 
-                            // }
-                        }
-                        console.log(errors);
-                        return errors;
-                    }}
+                    //     values => {
+                    //     let errors = {};
+                    //     if (!values.name) {
+                    //         // errors.name = '';
+                    //         errors = { ...errors, 'name': 'Required' };
+                    //         // } else if (
+                    //         //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
+                    //         // ) {
+                    //         //     errors = { ...errors, 'name': 'Invalid email address.' };
+                    //         //     //    errors.name = 'Invalid email address.';
+                    //         // }
+                    //     }
+                    //     else if (!values.token) {
+                    //         errors = { ...errors, 'token': 'Required' };
+                    //         // } else if (
+                    //         //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
+                    //         // ) {
+                    //         //     errors = { ...errors, 'token': 'Invalid token.' };
+
+                    //         // }
+                    //     }
+                    //     console.log(errors);
+                    //     return errors;
+                    // }}
                     onSubmit={(values, { setSubmitting }) => {
                         dispatch(authAsync(values))
                         let from = location.state?.from?.pathname || "/";
@@ -87,29 +83,41 @@ export default function Auth() {
                         /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className='d-flex flex-column'>
-                            <input
-                                className='form-control mb-3'
-                                type="text"
-                                placeholder='Kullanici Adi'
-                                name="name"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.name}
-                            />
-                            {errors.name && touched.name && errors.name}
-                            <input
-                                className='form-control mb-3'
-                                type="password"
-                                placeholder='Token'
-                                name="token"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.token}
-                            />
-                            {errors.token && touched.token && errors.token}
+                            <div className="input-group mb-3">
+                                {/* <label> Kullanici Adi </label> */}
+                                <input
+                                    className={classNames('', { "input-invalid": errors.name && touched.name })}
+                                    type="text"
+                                    placeholder='Kullanici Adi'
+                                    name="name"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value={values.name}
+
+                                />
+                                {errors.name && touched.name &&
+                                    <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.name}</div>}
+                            </div>
+                            <div className="input-group mb-3">
+                                <input
+                                    className={classNames('', { "input-invalid": errors.token && touched.token })}
+                                    type={showPass ? "text" : "password"}
+                                    placeholder='Token'
+                                    name="token"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value={values.token}
+                                />
+                                <Eye
+                                    changePasswordType={() => setShowPass(prev => !prev)}
+                                    show={showPass}
+                                />
+                                {errors.token && touched.token &&
+                                    <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.token}</div>}
+                            </div>
                             <button type="submit"
-                                disabled={isSubmitting}
-                                className="btn btn-primary">
+                                disabled={isSubmitting || !touched.name || !touched.token || errors.name !== undefined || errors.token !== undefined}
+                                className="btn btn-primary mt-5">
                                 Giris
                             </button>
                         </form>

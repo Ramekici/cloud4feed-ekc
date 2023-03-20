@@ -8,8 +8,8 @@ export interface AuthState {
 }
 
 export interface AuthData {
-    name: string;
-    token: string;
+  name: string;
+  token: string;
 }
 
 const initialState: AuthState = {
@@ -26,6 +26,8 @@ export const authAsync = createAsyncThunk(
     return response.data;
   }
 );
+
+
 
 export const authSlice = createSlice({
   name: 'auth',

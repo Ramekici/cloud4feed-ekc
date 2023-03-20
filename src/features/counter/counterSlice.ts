@@ -5,6 +5,7 @@ import { addUsr, deleteUsr, fetchCount, fetchUsers, updateUsr } from './counterA
 export interface UsersState {
   value: Array<User>;
   status: 'idle' | 'loading' | 'failed';
+  modal: boolean;
 }
 
 export interface User {
@@ -18,6 +19,7 @@ export interface User {
 const initialState: UsersState = {
   value: [],
   status: 'idle',
+  modal: false,
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -44,7 +46,7 @@ export const asyncAddUser = createAsyncThunk(
 
 export const asyncUpdateUser = createAsyncThunk(
   '/public/v2/users/:id',
-  async (data: User)  => {
+  async (data: User) => {
     const response = await updateUsr(data);
     // The value we return becomes the `fulfilled` action payload
     return response.data;
@@ -53,15 +55,15 @@ export const asyncUpdateUser = createAsyncThunk(
 
 
 
-export const deleteUser = createAsyncThunk('/public/v2/users/:id', async ({ id }: { id: string}) => {
-    console.log(id)
+export const deleteUser = createAsyncThunk('/public/v2/users/:id', async ({ id }: { id: string }) => {
+  console.log(id)
 
-    const response = await deleteUsr(id);
-    console.log(response)
-    // The value we return becomes the `fulfilled` action payload
-    // return response.data;
-    return '';
-  }
+  const response = await deleteUsr(id);
+  console.log(response)
+  // The value we return becomes the `fulfilled` action payload
+  // return response.data;
+  return '';
+}
 );
 
 export const addUser = createAsyncThunk(
@@ -80,6 +82,9 @@ export const userSlice = createSlice({
   reducers: {
     setUsers: (state, action: PayloadAction<any>) => {
       state.value = action.payload;
+    },
+    setModal: (state, action: PayloadAction<boolean>) => {
+      state.modal = action.payload;
     },
 
   },
@@ -100,12 +105,13 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUsers } = userSlice.actions;
+export const { setUsers, setModal } = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectUsers = (state: RootState) => state.user.value;
+export const selectModal = (state: RootState) => state.user.modal;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
