@@ -1,6 +1,7 @@
 import axios from "axios";
 import { AuthData } from "./authSlice";
 import { User } from "./counterSlice";
+import { Todos } from "./todosSlice";
 
 let authTokens = localStorage.getItem("token")
   ? JSON.parse(localStorage.getItem("token") ?? '')
@@ -50,13 +51,14 @@ const fetchTodo = async (id: string) => {
   }
 }
 
-const addTodo = async (id: string, todos: string) => {
-
-  
-  var todo = await instance.post(`/public/v2/users/${id}/todos`, { 'todo': todos })
-  console.log(todo.data);
-
-  return todo.data
+const addTodo = async (todos: Todos) => {
+  try {
+    var todo = await instance.post(`/public/v2/users/${todos.user_id}/todos`, { ...todos })
+    console.log(todo.data);
+    return todo.data
+  } catch (err) {
+    return null
+  }
 }
 
 
@@ -75,9 +77,18 @@ const updateUsr = async (dtm: User) => {
   return user.data;
 }
 
-const deleteUsr = async (id: string) => {
-  var del = await instance.delete(`/public/v2/users/${id}`);
-  return del.data;
+const deleteUsr = async (id: number) => {
+  try {
+    var del = await instance.delete(`/public/v2/users/${id}`);
+    if (del.status === 204) {
+      return id;
+    }
+    return 0;
+  }
+  catch (err) {
+
+  }
+
 }
 
 

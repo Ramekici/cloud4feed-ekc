@@ -35,6 +35,19 @@ export default function Users() {
         navigate('/login')
     }
 
+    const deleteHandler = (idm:number) => {
+        if (window.confirm('Are you sure for deleting user!!!'))
+        {
+            // They clicked Yes
+
+            dispatch(deleteUser({ id: idm}))
+        }
+        else
+        {
+            return// They clicked no
+        }
+    }
+
 
     return (
         <>
@@ -75,10 +88,7 @@ export default function Users() {
                                                 navigate('/details', { state: { itemId: item.id.toString() } })
                                                 dispatch(fetchTodoAsync(item.id.toString()))
                                             }} > Details </button>
-                                        <button className="btn btn-error" onClick={() => {
-                                            console.log(item.id)
-                                            dispatch(deleteUser({ id: item.id.toString() }))
-                                        }} > Delete </button>
+                                        <button className="btn btn-error" onClick={() => deleteHandler(item.id)} > Delete </button>
                                     </div>
                                 </div>
                             </div>);

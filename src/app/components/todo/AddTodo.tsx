@@ -1,10 +1,19 @@
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import React from 'react'
 import { useAppDispatch } from '../../hooks';
 import cn from 'classnames';
 import { addTodoAsync } from '../../../features/counter/todosSlice';
+import classNames from 'classnames';
+import { setModal } from '../../../features/counter/counterSlice';
+import { object, string } from 'yup';
 
-const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId: string })> =
+const validation = object().shape({
+    title: string().required("Baslik gerekli!").min(3),
+    status: string().required("Status gerekli!").min(3),
+    due_on: string().required("Tarih gerekli!")
+});
+
+const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId: number })> =
     ({ openModal, setModalOpen, itemId }) => {
         const dispatch = useAppDispatch();
 
@@ -17,28 +26,19 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog" role="document">
                     <Formik
-                        initialValues={{ 'todo': '' }}
+                        initialValues={{ title: '', status: '', due_on: '' }}
                         enableReinitialize
-                        validate={values => {
-                            let errors = {};
-                            if (!values.todo) {
-                                // errors.name = '';
-                                errors = { ...errors, 'name': 'Required' };
-                                // } else if (
-                                //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                                // ) {
-                                //     errors = { ...errors, 'name': 'Invalid email address.' };
-                                //     //    errors.name = 'Invalid email address.';
-                                // }
+                        validationSchema={validation}
+                        onSubmit={async (values, { setSubmitting }) => {
+                            var response = await dispatch(addTodoAsync({
+                                data: {
+                                    ...values, 'user_id': itemId,
+                                    id: 123,
+                                }
+                            }))
+                            if (response) {
+                                dispatch(setModal(false))
                             }
-
-                            return errors;
-                        }}
-                        onSubmit={(values, { setSubmitting }) => {
-                            dispatch(addTodoAsync({ id: itemId, todo: values.todo }))
-
-                            // let from = location.state?.from?.pathname || "/";
-                            // navigate(from, { replace: true });
 
                         }}
                     >
@@ -50,6 +50,7 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                             handleBlur,
                             handleSubmit,
                             isSubmitting,
+                            resetForm
                             /* and other goodies */
                         }) => (
                             <form onSubmit={handleSubmit} className='d-flex flex-column'>
@@ -57,32 +58,68 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                     <div className="modal-header">
                                         <h5 className="modal-title" id="exampleModalLabel"> Add </h5>
                                         <button type="button" className="close btn btn-lg"
-                                            onClick={() =>
+                                            onClick={() => {
+                                                resetForm()
                                                 setModalOpen()
+                                                }
                                             }
                                             data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div className="modal-body">
-                                        <input
-                                            className='form-control mb-3'
-                                            type="text"
-                                            placeholder='Todo'
-                                            name="todo"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values.todo}
-                                        />
-                                        {errors.todo && touched.todo && errors.todo}
+                                        <div className="input-group my-3">
+                                            {/* <label> Kullanici Adi </label> */}
+                                            <input
+                                                className={classNames('', { "input-invalid": errors.title && touched.title })}
+                                                type="text"
+                                                placeholder='Baslik'
+                                                name="title"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.title}
+
+                                            />
+                                            {errors.title && touched.title &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.title}</div>}
+                                        </div>
+                                        <div className="input-group my-3 " >
+                                            <select
+                                                className={classNames('', { "input-invalid": errors.status && touched.status })}
+                                                style={{ height: '2.2rem', display: "block" }}
+                                                name="status"
+                                                value={values.status}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+
+                                            >
+                                                <option value="" label="Select a status">
+                                                    Select a status{" "}
+                                                </option>
+                                                <option value="pending" label="Pending">
+                                                    {" "}
+                                                    Pending
+                                                </option>
+                                                <option value="completed" label="Completed">
+                                                    Completed
+                                                </option>
+                                            </select>
+                                            {errors.status && touched.status &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.status}</div>}
+                                        </div>
+                                        <div className="input-group my-3 " >
+                                            <Field type="date" name="due_on" placeholder="Select up to date" />
+                                        </div>
                                     </div>
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary"
-                                            onClick={() =>
+                                            onClick={() => {
+                                                resetForm()
                                                 setModalOpen()
+                                                }
                                             }
-                                            data-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary">Add</button>
+                                            data-dismiss="modal">Kapat</button>
+                                        <button type="submit" className="btn btn-primary">Ekle</button>
                                     </div>
                                 </div>
                             </form>

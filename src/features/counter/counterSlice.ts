@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState, AppThunk } from '../../app/store';
-import { addUsr, deleteUsr, fetchCount, fetchUsers, updateUsr } from './counterAPI';
+import { RootState } from '../../app/store';
+import { addUsr, deleteUsr, fetchUsers, updateUsr } from './counterAPI';
 
 export interface UsersState {
   value: Array<User>;
@@ -55,14 +55,14 @@ export const asyncUpdateUser = createAsyncThunk(
 
 
 
-export const deleteUser = createAsyncThunk('/public/v2/users/:id', async ({ id }: { id: string }) => {
+export const deleteUser = createAsyncThunk('/public/v2/users/:id', async ({ id }: { id: number }) => {
   console.log(id)
 
   const response = await deleteUsr(id);
   console.log(response)
   // The value we return becomes the `fulfilled` action payload
   // return response.data;
-  return '';
+  return response;
 }
 );
 
@@ -110,6 +110,21 @@ export const userSlice = createSlice({
         state.value = { ...state.value, ...action.payload };
       })
       .addCase(asyncAddUser.rejected, (state) => {
+        state.status = 'failed';
+      });
+      builder
+      .addCase(deleteUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.status = 'idle';
+        console.log(action.payload)
+        const item = state.value.findIndex(item => item.id === action.payload)
+        console.log(item)
+        if(item > -1) state.value.splice(item, 1)
+        // state.value = { ...state.value, ...action.payload };
+      })
+      .addCase(deleteUser.rejected, (state) => {
         state.status = 'failed';
       });
   },

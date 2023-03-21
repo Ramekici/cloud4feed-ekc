@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from '../../app/store';
 import { AuthData } from './authSlice';
 import { addTodo, fetchAuth, fetchTodo } from './counterAPI';
+import { setModal } from './counterSlice';
 
 export interface TodosState {
   value: Array<Todos>;
@@ -26,7 +27,7 @@ const initialState: TodosState = {
 
 
 export const fetchTodoAsync = createAsyncThunk(
-  '/public/v2/users/:id/todos',
+  'fetchTodoAsync',
   async (id: string) => {
     const response = await fetchTodo(id);
     return response;
@@ -34,11 +35,12 @@ export const fetchTodoAsync = createAsyncThunk(
 );
 
 export const addTodoAsync = createAsyncThunk(
-  '/public/v2/users/:id/todos',
-  async ({id, todo} : {id: string, todo: string}) => {
-    const response = await addTodo(id, todo);
+  'addTodoAsync',
+  async ({ data }: { data: Todos }) => {
+    const response = await addTodo(data);
+   
     // The value we return becomes the `fulfilled` action payload
-    return response.data;
+    return response;
   }
 );
 
@@ -60,9 +62,25 @@ export const todosSlice = createSlice({
       })
       .addCase(fetchTodoAsync.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.value = action.payload;
+        if (action.payload) {
+          state.value = action.payload;
+        }
+
       })
       .addCase(fetchTodoAsync.rejected, (state) => {
+        state.status = 'failed';
+      });
+    builder
+      .addCase(addTodoAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addTodoAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        if (action.payload) {
+          state.value = [...state.value, action.payload];
+        }
+      })
+      .addCase(addTodoAsync.rejected, (state) => {
         state.status = 'failed';
       });
   },

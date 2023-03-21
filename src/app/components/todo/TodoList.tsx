@@ -12,6 +12,7 @@ export default function TodoList() {
   const modal = useAppSelector(selectModal)
   const { state } = useLocation();
   const { itemId } = state;
+  console.log(selector);
   return (
     <>
       <AddTodo openModal={modal} setModalOpen={() => dispatch(setModal(false))} itemId={itemId} />
