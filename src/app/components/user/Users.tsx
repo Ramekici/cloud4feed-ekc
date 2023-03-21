@@ -2,7 +2,7 @@ import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router';
 import { setAuth } from '../../../features/counter/authSlice';
-import { asyncUsers, deleteUser, selectModal, selectUsers, setModal, User } from '../../../features/counter/counterSlice';
+import { asyncFetchUsers, deleteUser, selectModal, selectUsers, setModal, User } from '../../../features/counter/counterSlice';
 import { fetchTodoAsync } from '../../../features/counter/todosSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import AddModal from './AddModal';
@@ -19,7 +19,7 @@ export default function Users() {
     let from = location.state?.from?.pathname || "/";
 
     useEffect(() => {
-        dispatch(asyncUsers())
+        dispatch(asyncFetchUsers())
     }, [])
 
     // const closeMadalHandler = (pos: boolean) =>{

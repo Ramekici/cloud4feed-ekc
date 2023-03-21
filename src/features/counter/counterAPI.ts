@@ -2,13 +2,15 @@ import axios from "axios";
 import { AuthData } from "./authSlice";
 import { User } from "./counterSlice";
 
+let authTokens = localStorage.getItem("token")
+  ? JSON.parse(localStorage.getItem("token") ?? '')
+  : null;
 
 const instance = axios.create({
   baseURL: 'https://gorest.co.in',
   timeout: 30000,
   headers: {
-    'X-Custom-Header': 'foobar',
-    Authorization: 'Bearer '
+    Authorization: `Bearer ${authTokens?.token}`
   }
 });
 
@@ -21,10 +23,17 @@ export function fetchCount(amount = 1) {
 }
 
 
-export function fetchAuth(dtm: AuthData) {
-  return new Promise<{ data: boolean }>((resolve, reject) => {
-    setTimeout(() => resolve({ data: true }), 500);
-  })
+const fetchAuth = async (dtm: AuthData) => {
+  try {
+    console.log(dtm)
+    var auth = await instance.post('/consumer/login', { 'kullanıcı adı': dtm.name, token: dtm.token })
+    console.log('auth', auth)
+    return auth.data
+  } catch (err) {
+    console.log('error', err)
+    return false
+  }
+
 }
 
 const fetchUsers = async () => {
@@ -42,6 +51,8 @@ const fetchTodo = async (id: string) => {
 }
 
 const addTodo = async (id: string, todos: string) => {
+
+  
   var todo = await instance.post(`/public/v2/users/${id}/todos`, { 'todo': todos })
   console.log(todo.data);
 
@@ -52,8 +63,8 @@ const addTodo = async (id: string, todos: string) => {
 const addUsr = async (dtm: User) => {
   console.log(dtm);
   const { id, ...rest } = dtm;
-  var user = await instance.post(`/public/v2/users`, { rest });
-
+  var user = await instance.post(`/public/v2/users`, { ...rest });
+  console.log(user);
   return user.data;
 }
 
@@ -70,4 +81,4 @@ const deleteUsr = async (id: string) => {
 }
 
 
-export { fetchUsers, updateUsr, addUsr, deleteUsr, fetchTodo, addTodo };
+export { fetchUsers, updateUsr, addUsr, deleteUsr, fetchTodo, addTodo, fetchAuth };

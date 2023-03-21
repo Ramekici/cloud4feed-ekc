@@ -23,7 +23,7 @@ export const authAsync = createAsyncThunk(
   async (dtm: AuthData) => {
     const response = await fetchAuth(dtm);
     // The value we return becomes the `fulfilled` action payload
-    return response.data;
+    return response;
   }
 );
 
