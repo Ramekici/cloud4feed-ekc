@@ -5,6 +5,7 @@ import { addUsr, deleteUsr, fetchUsers, updateUsr } from './commonAPI';
 export interface UsersState {
   value: Array<User>;
   status: 'idle' | 'loading' | 'failed';
+  error: string;
   cstatus: 'idle' | 'loading' | 'failed';
   modal: boolean;
 }
@@ -21,13 +22,14 @@ const initialState: UsersState = {
   value: [],
   status: 'idle',
   cstatus: 'idle',
+  error: '',
   modal: false,
 };
 
 
 export const asyncFetchUsers = createAsyncThunk(
   'asyncFetchUsers',
-  async ({page, per_page}: {page:number, per_page: number}) => {
+  async ({ page, per_page }: { page: number, per_page: number }) => {
     const response = await fetchUsers(page, per_page);
     // The value we return becomes the `fulfilled` action payload
     return response;
@@ -72,6 +74,9 @@ export const userSlice = createSlice({
     setModal: (state, action: PayloadAction<boolean>) => {
       state.modal = action.payload;
     },
+    setError: (state, action: PayloadAction<any>) => {
+      state.error = action.payload;
+    },
 
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -93,11 +98,14 @@ export const userSlice = createSlice({
       })
       .addCase(asyncAddUser.fulfilled, (state, action) => {
         state.status = 'idle';
-        if (action.payload) {
+        if (action.payload!.hasOwnProperty('token')) {
+          state.error = 'Token is Invalid';
+        } else if (action.payload !== null) {
           state.value = [action.payload, ...state.value];
         }
       })
-      .addCase(asyncAddUser.rejected, (state) => {
+      .addCase(asyncAddUser.rejected, (state, action) => {
+
         state.status = 'failed';
       });
     builder
@@ -106,11 +114,17 @@ export const userSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.status = 'idle';
-        const item = state.value.findIndex(item => item.id === action.payload)
-        if (item > -1) state.value.splice(item, 1)
+        if (action.payload!.hasOwnProperty('token')) {
+          state.error = 'Token is Invalid';
+        } else {
+          const item = state.value.findIndex(item => item.id === action.payload)
+          if (item > -1) state.value.splice(item, 1)
+        }
+
       })
-      .addCase(deleteUser.rejected, (state) => {
+      .addCase(deleteUser.rejected, (state, action) => {
         state.status = 'failed';
+
       });
     builder
       .addCase(asyncUpdateUser.pending, (state) => {
@@ -118,13 +132,13 @@ export const userSlice = createSlice({
       })
       .addCase(asyncUpdateUser.fulfilled, (state, action) => {
         state.status = 'idle';
-
-        if (action.payload) {
-          const item = state.value.findIndex(item => item.id === action.payload.id)
-          if (item > -1) state.value.splice(item, 1, action.payload)
-          // state.value = [...state.value, action.payload];
-
-        }
+        if (action.payload!.hasOwnProperty('token')) {
+          state.error = 'Token is Invalid';
+        } else if (action.payload !== null) {
+            const item = state.value.findIndex(item => item.id === action.payload.id)
+            if (item > -1) state.value.splice(item, 1, action.payload)
+            // state.value = [...state.value, action.payload];
+          }
       })
       .addCase(asyncUpdateUser.rejected, (state) => {
         state.status = 'failed';
@@ -132,13 +146,14 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUsers, setModal } = userSlice.actions;
+export const { setUsers, setModal, setError } = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectUsers = (state: RootState) => state.user.value;
 export const selectModal = (state: RootState) => state.user.modal;
+export const selectError = (state: RootState) => state.user.error;
 export const selectUserStatus = (state: RootState) => state.user.status;
 export const selectCUserStatus = (state: RootState) => state.user.cstatus;
 // We can also write thunks by hand, which may contain both sync and async logic.

@@ -5,6 +5,7 @@ import { addTodo, fetchTodo } from './commonAPI';
 
 export interface TodosState {
   value: Array<Todos>;
+  error: string;
   status: 'idle' | 'loading' | 'failed';
 }
 
@@ -21,6 +22,7 @@ export interface Todos {
 
 const initialState: TodosState = {
   value: [],
+  error: '',
   status: 'idle',
 };
 
@@ -37,8 +39,6 @@ export const addTodoAsync = createAsyncThunk(
   'addTodoAsync',
   async ({ data }: { data: Todos }) => {
     const response = await addTodo(data);
-   
-    // The value we return becomes the `fulfilled` action payload
     return response;
   }
 );
@@ -75,7 +75,9 @@ export const todosSlice = createSlice({
       })
       .addCase(addTodoAsync.fulfilled, (state, action) => {
         state.status = 'idle';
-        if (action.payload) {
+        if (action.payload!.hasOwnProperty('token')) {
+          state.error = 'Token is Invalid';
+        } else if (action.payload !== null) {
           state.value = [...state.value, action.payload];
         }
       })
@@ -94,13 +96,6 @@ export const selectTodos = (state: RootState) => state.todos.value;
 export const selectTodosSta = (state: RootState) => state.todos.status;
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
-// export const incrementIfOdd =
-//   (amount: number): AppThunk =>
-//   (dispatch, getState) => {
-//     const currentValue = selectCount(getState());
-//     if (currentValue % 2 === 1) {
-//       dispatch(incrementByAmount(amount));
-//     }
-//   };
+
 
 export default todosSlice.reducer;

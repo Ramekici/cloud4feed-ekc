@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosHeaders } from "axios";
 import { AuthData } from "./authSlice";
 import { User } from "./userSlice";
 import { Todos } from "./todosSlice";
@@ -64,7 +64,7 @@ const addTodo = async (todos: Todos) => {
     var todo = await instance.post(`/public/v2/users/${todos.user_id}/todos`, { ...todos })
     return todo.data
   } catch (err) {
-    return null
+    return errMsg(err)
   }
 }
 
@@ -75,7 +75,7 @@ const addUsr = async (dtm: User) => {
     var user = await instance.post(`/public/v2/users`, { ...rest });
     return user.data;
   } catch (err) {
-    return null
+    return errMsg(err)
   }
 
 }
@@ -85,7 +85,14 @@ const updateUsr = async (dtm: User) => {
     var user = await instance.put(`/public/v2/users/${dtm.id}`, { ...dtm });
     return user.data;
   } catch (err) {
-    return null
+    return errMsg(err)
+  }
+}
+
+const errMsg = (err: any) => {
+
+  if(err.code === AxiosError.ERR_BAD_REQUEST) {
+    return {'token': 'Token is invalid'}
   }
 }
 
@@ -98,7 +105,8 @@ const deleteUsr = async (id: number) => {
     return -1;
   }
   catch (err) {
-    return -1;
+
+    return errMsg(err)
   }
 
 }

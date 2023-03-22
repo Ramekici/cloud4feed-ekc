@@ -29,10 +29,10 @@ const UserList: React.FC<{ setUpdate: (p: User) => void }> = ({ setUpdate }) => 
         return <div className="row">Some error happened. Try it again later.</div>
     }
     return (
-        <div className="row">
+        <div className="row mt-3">
             {selector.length > 0 && selector.map((item) => {
-                return (<div className="col col-md-6 " key={item.id}>
-                    <div className={classNames("card mb-3", { 'border-success border-3': item.status === 'active' })} >
+                return (<div className="col-12 col-lg-6 mb-3 " key={item.id} style={{minHeight: '120px'}}>
+                    <div className={classNames("card h-100", { 'border-success border-3': item.status === 'active' })} >
                         <div className="card-body p-relative">
                             <h5 className="card-title">{item.name}</h5>
                             <p className="card-text"> Mail : {item.email}</p>

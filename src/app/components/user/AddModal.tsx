@@ -52,11 +52,12 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                         onSubmit={async (values, { setSubmitting }) => {
                             let response = null;
                             if (user !== undefined) {
-                                console.log('up')
+                            
                                 response = await dispatch(asyncUpdateUser({ id: user.id, ...values }))
                             } else {
                                 response = await dispatch(asyncAddUser({ id: 123, ...values }))
                             }
+                            console.log(response)
                             if (response) {
                                 dispatch(setModal(false))
                             }
