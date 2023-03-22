@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import Layout from './app/layout/Layout';
 import Auth from './app/components/login/Auth';

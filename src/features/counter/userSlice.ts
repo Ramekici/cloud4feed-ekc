@@ -27,8 +27,8 @@ const initialState: UsersState = {
 
 export const asyncFetchUsers = createAsyncThunk(
   'asyncFetchUsers',
-  async () => {
-    const response = await fetchUsers();
+  async ({page, per_page}: {page:number, per_page: number}) => {
+    const response = await fetchUsers(page, per_page);
     // The value we return becomes the `fulfilled` action payload
     return response;
   }
@@ -94,7 +94,7 @@ export const userSlice = createSlice({
       .addCase(asyncAddUser.fulfilled, (state, action) => {
         state.status = 'idle';
         if (action.payload) {
-          state.value = [action.payload, ...state.value ];
+          state.value = [action.payload, ...state.value];
         }
       })
       .addCase(asyncAddUser.rejected, (state) => {
