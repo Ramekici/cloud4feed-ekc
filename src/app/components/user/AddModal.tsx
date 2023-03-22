@@ -1,58 +1,64 @@
-import { Field, Formik } from 'formik';
-import React, { useEffect, useState } from 'react'
-import { useAppDispatch } from '../../hooks';
+import { Formik } from 'formik';
+import React, { useEffect, useRef, useState } from 'react'
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import cn from 'classnames';
-import { asyncUpdateUser, User, asyncAddUser } from '../../../features/counter/counterSlice';
+import { asyncUpdateUser, User, asyncAddUser, setModal, selectUserStatus, selectModal } from '../../../features/counter/userSlice';
+import classNames from 'classnames';
+import { object, string } from 'yup';
+import useOnClickOutside from '../../helper/useOutsideClick';
+
+const validation = object().shape({
+    name: string().required("Kullanici Adi gerekli!").min(2, 'Minimum 2 karakter gerekli.'),
+    email: string().required("Email gerekli!").email(),
+    status: string().required("Status gerekli!"),
+    gender: string().required("Gender gerekli!")
+});
 
 const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: User }> =
     ({ openModal, setModalOpen, user }) => {
         const dispatch = useAppDispatch();
         const [initialValues, setInitial] = useState({ email: '', name: '', gender: '', status: '' })
+        const userStat = useAppSelector(selectUserStatus)
+        const userModal = useAppSelector(selectModal)
 
         useEffect(() => {
             if (user !== undefined) {
-                console.log(user.email);
+                console.log(user);
                 setInitial({ email: user?.email, name: user?.name, gender: user?.gender ?? '', status: user?.status ?? '' })
             }
         }, [
             user
         ])
 
-        const radioOptions = [
-            { key: 'Option 1', value: 'Male' },
-            { key: 'Option 2', value: 'Female' },
-        ];
+        const handleClickOutside = () => {
+            if(userModal) {dispatch(setModal(false))}
+            
+        }
+
+        const ref = useRef(null);
+        useOnClickOutside(ref, handleClickOutside)
 
         return (
             <div className={cn("modal fade", { 'show': openModal })}
                 style={openModal ? { display: 'inline-block' } : {}}
                 id="addModal" tabIndex={-1} role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog" role="document">
+                <div className="modal-dialog" role="document" ref={ref}>
                     <Formik
                         initialValues={initialValues}
                         enableReinitialize
-                        validate={values => {
-                            let errors = {};
-                            if (!values.name) {
-                                // errors.name = '';
-                                errors = { ...errors, 'name': 'Required' };
-                                // } else if (
-                                //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                                // ) {
-                                //     errors = { ...errors, 'name': 'Invalid email address.' };
-                                //     //    errors.name = 'Invalid email address.';
-                                // }
-                            }
+                        validationSchema={validation}
 
-                            return errors;
-                        }}
-                        onSubmit={(values, { setSubmitting }) => {
+                        onSubmit={async (values, { setSubmitting }) => {
+                            let response = null;
                             if (user !== undefined) {
                                 console.log('up')
-                                dispatch(asyncUpdateUser({ id: user.id, ...values }))
+                                response = await dispatch(asyncUpdateUser({ id: user.id, ...values }))
                             } else {
-                                dispatch(asyncAddUser({ id: 123, ...values }))
+                                response = await dispatch(asyncAddUser({ id: 123, ...values }))
+                            }
+                            if (response) {
+                                dispatch(setModal(false))
                             }
 
                             // let from = location.state?.from?.pathname || "/";
@@ -84,62 +90,70 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                         </button>
                                     </div>
                                     <div className="modal-body">
-                                        <input
-                                            className='form-control mb-3'
-                                            type="text"
-                                            placeholder='Kullanici Adi'
-                                            name="name"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values.name}
-                                        />
-                                        {errors.name && touched.name && errors.name}
-                                        <input
-                                            className='form-control mb-3'
-                                            type="email"
-                                            placeholder='Email'
-                                            name="email"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values.email}
-                                        />
+                                        <div className="input-group my-3">
+                                            <input
+                                                className={classNames('', { "input-invalid": errors.name && touched.name })}
+                                                type="text"
+                                                placeholder='Kullanici Adi'
+                                                name="name"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.name}
+                                            />
 
-                                        {errors.email && touched.email && errors.email}
+                                            {errors.name && touched.name &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.name}</div>}
+                                        </div>
+                                        <div className="input-group my-3">
+                                            <input
+                                                className={classNames('', { "input-invalid": errors.email && touched.email })}
+                                                type="email"
+                                                placeholder='Email'
+                                                name="email"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.email}
+                                            />
 
 
-                                        {errors.gender && touched.gender && errors.gender}
-                                        <select
-                                            className='form-control'
+                                            {errors.email && touched.email &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.email}</div>}
+                                        </div>
 
-                                            name="status"
-                                            value={values.status}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            style={{ display: "block" }}
-                                        >
-                                            <option value="" label="Select a status">
-                                                Select a status{" "}
-                                            </option>
-                                            <option value="active" label="active">
-                                                {" "}
-                                                Active
-                                            </option>
-                                            <option value="inactive" label="inactive">
-                                                Not Activated
-                                            </option>
 
-                                        </select>
-                                        {errors.status && <div className="input-feedback">{errors.status}</div>}
-                                       
+                                        <div className="input-group my-3">
+                                            <select
+                                                className={classNames('', { "input-invalid": errors.status && touched.status })}
+                                                name="status"
+                                                value={values.status}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                style={{ display: "block", height: '2.2rem' }}
+                                            >
+                                                <option value="" label="Select a status">
+                                                    Select a status{" "}
+                                                </option>
+                                                <option value="active" label="Active">
+                                                    {" "}
+                                                    Active
+                                                </option>
+                                                <option value="inactive" label="Inactive">
+                                                    Not Activated
+                                                </option>
+                                            </select>
+                                            {errors.status && touched.status &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.status}</div>}
+                                        </div>
+
                                         <div className="row my-3">
-                                               <div className="col-12 mb-3">
-                                               <label
+                                            <div className="col-12 mb-1">
+                                                <label
                                                     className="form-control-label"
                                                     htmlFor="male"
                                                 >
                                                     Gender
                                                 </label>
-                                               </div>
+                                            </div>
                                             <div className="col-6">
                                                 <input
                                                     id="male"
@@ -147,7 +161,7 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                     value="male"
                                                     name='gender'
                                                     onChange={handleChange}
-                                                    defaultChecked={values.gender === "male"}
+                                                    checked={values.gender === "male"}
                                                 />
                                                 <label
                                                     className="ps-2 form-control-label"
@@ -163,7 +177,7 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                     value="female"
                                                     name='gender'
                                                     onChange={handleChange}
-                                                    defaultChecked={values.gender === "female"}
+                                                    checked={values.gender === "female"}
                                                 />
                                                 <label
                                                     className="ps-2 form-control-label"
@@ -181,7 +195,12 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                 setInitial({ email: '', name: '', gender: '', status: '' })
                                             }}
                                             data-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary">{user === undefined ? 'Add' : 'Update'}</button>
+                                        <button type="submit" className="btn btn-primary">
+                                            <div className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
+
+                                            </div>
+                                            <span className={classNames('', { 'd-none': userStat === 'loading' })}> {user === undefined ? 'Add' : 'Update'}</span>
+                                        </button>
                                     </div>
                                 </div>
                             </form>

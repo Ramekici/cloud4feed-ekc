@@ -1,30 +1,37 @@
 import { Field, Formik } from 'formik';
-import React from 'react'
-import { useAppDispatch } from '../../hooks';
+import React, { useRef } from 'react'
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import cn from 'classnames';
-import { addTodoAsync } from '../../../features/counter/todosSlice';
+import { addTodoAsync, selectTodosSta } from '../../../features/counter/todosSlice';
 import classNames from 'classnames';
-import { setModal } from '../../../features/counter/counterSlice';
+import { selectModal, setModal } from '../../../features/counter/userSlice';
 import { object, string } from 'yup';
+import useOnClickOutside from '../../helper/useOutsideClick';
 
 const validation = object().shape({
-    title: string().required("Baslik gerekli!").min(3),
-    status: string().required("Status gerekli!").min(3),
+    title: string().required("Baslik gerekli!").min(2, 'Minimum 2 karakter gerekli.'),
+    status: string().required("Status gerekli!"),
     due_on: string().required("Tarih gerekli!")
 });
 
 const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId: number })> =
     ({ openModal, setModalOpen, itemId }) => {
         const dispatch = useAppDispatch();
+        const userStat = useAppSelector(selectTodosSta)
+        const userModal = useAppSelector(selectModal)
 
-
+        const handleClickOutside = () => {
+            if(userModal) {dispatch(setModal(false))}
+        }
+        const ref = useRef(null);
+        useOnClickOutside(ref, handleClickOutside)
 
         return (
             <div className={cn("modal fade", { 'show': openModal })}
                 style={openModal ? { display: 'inline-block' } : {}}
                 id="addModal" tabIndex={-1} role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog" role="document">
+                <div className="modal-dialog" role="document" ref={ref}>
                     <Formik
                         initialValues={{ title: '', status: '', due_on: '' }}
                         enableReinitialize
@@ -61,7 +68,7 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                             onClick={() => {
                                                 resetForm()
                                                 setModalOpen()
-                                                }
+                                            }
                                             }
                                             data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
@@ -116,10 +123,14 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                             onClick={() => {
                                                 resetForm()
                                                 setModalOpen()
-                                                }
+                                            }
                                             }
                                             data-dismiss="modal">Kapat</button>
-                                        <button type="submit" className="btn btn-primary">Ekle</button>
+                                        <button type="submit" className="btn btn-primary">
+                                            <div className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
+                                            </div>
+                                            <span className={classNames('', { 'd-none': userStat === 'loading' })}> Ekle</span>
+                                        </button>
                                     </div>
                                 </div>
                             </form>

@@ -1,19 +1,42 @@
 import axios from "axios";
 import { AuthData } from "./authSlice";
-import { User } from "./counterSlice";
+import { User } from "./userSlice";
 import { Todos } from "./todosSlice";
 
-let authTokens = localStorage.getItem("token")
-  ? JSON.parse(localStorage.getItem("token") ?? '')
-  : null;
+
+
+// const instance = axios.create({
+//   baseURL: 'https://gorest.co.in',
+//   timeout: 30000,
+//   headers: {
+//     Authorization: `Bearer ${authTokens?.token}`
+//   }
+// });
 
 const instance = axios.create({
   baseURL: 'https://gorest.co.in',
   timeout: 30000,
-  headers: {
-    Authorization: `Bearer ${authTokens?.token}`
-  }
 });
+
+instance.interceptors.request.use(
+  async config => {
+
+    let authTokens = localStorage.getItem("token")
+      ? JSON.parse(localStorage.getItem("token") ?? '')
+      : null;
+
+    // config.headers = {
+    //   Authorization: `Bearer ${authTokens?.token}`,
+    //   Accept: 'application/json',
+    //   'Content-Type': 'application/x-www-form-urlencoded'
+    // }
+    config.headers.Authorization = `Bearer ${authTokens?.token}`;
+    config.headers.Accept = 'application/json';
+    return config;
+  },
+  error => {
+    Promise.reject(error)
+  });
 
 
 // A mock function to mimic making an async request for data
@@ -71,10 +94,14 @@ const addUsr = async (dtm: User) => {
 }
 
 const updateUsr = async (dtm: User) => {
-  console.log("update", dtm);
-  var user = await instance.put(`/public/v2/users/${dtm.id}`);
-  console.log("updateuser", user);
-  return user.data;
+  try {
+    console.log("update", dtm);
+    var user = await instance.put(`/public/v2/users/${dtm.id}`, { ...dtm });
+    console.log("updateuser", user);
+    return user.data;
+  } catch (err) {
+    return null
+  }
 }
 
 const deleteUsr = async (id: number) => {

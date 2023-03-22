@@ -8,8 +8,9 @@ import classNames from 'classnames';
 import Eye from './Eye';
 
 const validation = object().shape({
-    name: string().required("Kullanici adi gerekli!").min(3),
-    token: string().required("Token gerekli!").min(3),
+    name: string().required("Kullanici adi gerekli!").min(3, 'Minimum 3 karakter'),
+    token: string().required("Token gerekli!")
+    .matches(/^.*(?=.{3,})(?=.*\d)(?=.*[a-zA-Z0-9]).*$/g, 'En az 1 harf ve 1 rakam icermelidir.'),
 });
 
 export default function Auth() {
@@ -18,7 +19,7 @@ export default function Auth() {
 
     const [showPass, setShowPass] = useState<boolean>(false)
 
-    let from = location.state?.from?.pathname || "/";
+    // let from = location.state?.from?.pathname || "/";
 
     useEffect(() => {
         const user = localStorage.getItem('token') ?? '';
@@ -34,7 +35,7 @@ export default function Auth() {
 
     return (
         <div className='h-100 row'>
-            <div className='col-md-5 col-lg-4 mx-auto border-1'>
+            <div className='col-12 col-md-8 col-lg-6 mx-auto border-1'>
                 <h1 className='mb-5'>Login</h1>
                 <Formik
                     initialValues={{ name: '', token: '' }}

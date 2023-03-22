@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from '../../app/store';
-import { fetchAuth } from './counterAPI';
+import { fetchAuth } from './commonAPI';
 
 export interface AuthState {
   value: boolean;

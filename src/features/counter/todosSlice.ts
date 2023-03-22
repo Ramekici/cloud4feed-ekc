@@ -1,8 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState, AppThunk } from '../../app/store';
-import { AuthData } from './authSlice';
-import { addTodo, fetchAuth, fetchTodo } from './counterAPI';
-import { setModal } from './counterSlice';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { RootState } from '../../app/store';
+import { addTodo, fetchTodo } from './commonAPI';
+
 
 export interface TodosState {
   value: Array<Todos>;
@@ -92,7 +91,7 @@ export const { setTodo } = todosSlice.actions;
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectTodos = (state: RootState) => state.todos.value;
-
+export const selectTodosSta = (state: RootState) => state.todos.status;
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 // export const incrementIfOdd =

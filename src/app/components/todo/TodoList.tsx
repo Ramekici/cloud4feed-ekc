@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useLocation, useNavigate } from 'react-router';
-import { selectModal, setModal } from '../../../features/counter/counterSlice';
+import { selectModal, setModal } from '../../../features/counter/userSlice';
 import { selectTodos } from '../../../features/counter/todosSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import AddTodo from './AddTodo';
