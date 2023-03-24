@@ -21,7 +21,7 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
         const userModal = useAppSelector(selectModal)
 
         const handleClickOutside = () => {
-            if(userModal) {dispatch(setModal(false))}
+            if (userModal) { dispatch(setModal(false)) }
         }
         const ref = useRef(null);
         useOnClickOutside(ref, handleClickOutside)
@@ -31,37 +31,38 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                 style={openModal ? { display: 'inline-block' } : {}}
                 id="addModal" tabIndex={-1} role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog" role="document" ref={ref}>
-                    <Formik
-                        initialValues={{ title: '', status: '', due_on: '' }}
-                        enableReinitialize
-                        validationSchema={validation}
-                        onSubmit={async (values, { setSubmitting }) => {
-                            var response = await dispatch(addTodoAsync({
-                                data: {
-                                    ...values, 'user_id': itemId,
-                                    id: 123,
+                <div className="modal-dialog modal-dialog-centered" role="document" ref={ref}>
+                    <div className="modal-content">
+                        <Formik
+                            initialValues={{ title: '', status: '', due_on: '' }}
+                            enableReinitialize
+                            validationSchema={validation}
+                            onSubmit={async (values, { setSubmitting }) => {
+                                var response = await dispatch(addTodoAsync({
+                                    data: {
+                                        ...values, 'user_id': itemId,
+                                        id: 123,
+                                    }
+                                }))
+                                if (response) {
+                                    dispatch(setModal(false))
                                 }
-                            }))
-                            if (response) {
-                                dispatch(setModal(false))
-                            }
 
-                        }}
-                    >
-                        {({
-                            values,
-                            errors,
-                            touched,
-                            handleChange,
-                            handleBlur,
-                            handleSubmit,
-                            isSubmitting,
-                            resetForm
-                            /* and other goodies */
-                        }) => (
-                            <form onSubmit={handleSubmit} className='d-flex flex-column'>
-                                <div className="modal-content">
+                            }}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                isSubmitting,
+                                resetForm
+                                /* and other goodies */
+                            }) => (
+                                <form onSubmit={handleSubmit} className='d-flex flex-column w-100'>
+
                                     <div className="modal-header">
                                         <h5 className="modal-title" id="exampleModalLabel"> Add </h5>
                                         <button type="button" className="close btn btn-lg"
@@ -75,10 +76,10 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                         </button>
                                     </div>
                                     <div className="modal-body">
-                                        <div className="input-group my-3">
+                                        <div className="input-group-custom my-3">
                                             {/* <label> Kullanici Adi </label> */}
                                             <input
-                                                className={classNames('', { "input-invalid": errors.title && touched.title })}
+                                                className={classNames('input', { "input-invalid": errors.title && touched.title })}
                                                 type="text"
                                                 placeholder='Baslik'
                                                 name="title"
@@ -90,10 +91,13 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                             {errors.title && touched.title &&
                                                 <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.title}</div>}
                                         </div>
-                                        <div className="input-group my-3 " >
+                                        <div className="input-group-custom my-3 " >
                                             <select
-                                                className={classNames('', { "input-invalid": errors.status && touched.status })}
-                                                style={{ height: '2.2rem', display: "block" }}
+                                                className={classNames('input', { "input-invalid": errors.status && touched.status })}
+                                                style={{
+                                                    height: '3rem',
+                                                    borderRadius: '.3rem', display: "block"
+                                                }}
                                                 name="status"
                                                 value={values.status}
                                                 onChange={handleChange}
@@ -114,8 +118,10 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                             {errors.status && touched.status &&
                                                 <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.status}</div>}
                                         </div>
-                                        <div className="input-group my-3 " >
+                                        <div className="input-group-custom my-3 " >
                                             <Field type="date" name="due_on" placeholder="Select up to date" />
+                                            {errors.due_on && touched.due_on &&
+                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.due_on}</div>}
                                         </div>
                                     </div>
                                     <div className="modal-footer">
@@ -126,16 +132,17 @@ const AddTodo: React.FC<({ openModal: boolean, setModalOpen: () => void, itemId:
                                             }
                                             }
                                             data-dismiss="modal">Kapat</button>
-                                        <button type="submit" className="btn btn-primary">
-                                            <div className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
-                                            </div>
+                                        <button type="submit" className="btn btn-primary btn-md">
+                                            <span className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
+                                            </span>
                                             <span className={classNames('', { 'd-none': userStat === 'loading' })}> Ekle</span>
                                         </button>
                                     </div>
-                                </div>
-                            </form>
-                        )}
-                    </Formik>
+
+                                </form>
+                            )}
+                        </Formik>
+                    </div>
                 </div>
             </div>
         );

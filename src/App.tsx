@@ -10,29 +10,28 @@ import TodoList from './app/components/todo/TodoList';
 
 function App() {
   return (
-    <div className='container h-100'>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/login" element={<Auth />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <Users />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/details"
-            element={
-              <RequireAuth>
-                <TodoList />
-              </RequireAuth>
-            }
-          />
-        </Route>
-      </Routes>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/login" element={<Auth />} />
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <Users />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/details"
+          element={
+            <RequireAuth>
+              <TodoList />
+            </RequireAuth>
+          }
+        />
+      </Route>
+    </Routes>
+
   );
 }
 

@@ -39,11 +39,11 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
         useOnClickOutside(ref, handleClickOutside)
 
         return (
-            <div className={cn("modal fade", { 'show': openModal })}
-                style={openModal ? { display: 'inline-block' } : {}}
+            <div className={cn("modal fade", { 'modal-open show': openModal })}
+                style={openModal ? { display: 'block' } : {display: 'none'}}
                 id="addModal" tabIndex={-1} role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog" role="document" ref={ref}>
+                <div className="modal-dialog modal-dialog-centered" role="document" ref={ref}>
                     <Formik
                         initialValues={initialValues}
                         enableReinitialize
@@ -77,7 +77,7 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                             isSubmitting,
                             /* and other goodies */
                         }) => (
-                            <form onSubmit={handleSubmit} className='d-flex flex-column'>
+                            <form onSubmit={handleSubmit} className='d-flex flex-column w-100'>
                                 <div className="modal-content">
                                     <div className="modal-header">
                                         <h5 className="modal-title" id="exampleModalLabel">{user !== undefined ? 'Update' : 'Add'}</h5>
@@ -91,9 +91,9 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                         </button>
                                     </div>
                                     <div className="modal-body">
-                                        <div className="input-group my-3">
+                                        <div className="input-group-custom my-3">
                                             <input
-                                                className={classNames('', { "input-invalid": errors.name && touched.name })}
+                                                className={classNames('input', { "input-invalid": errors.name && touched.name })}
                                                 type="text"
                                                 placeholder='Kullanici Adi'
                                                 name="name"
@@ -105,9 +105,9 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                             {errors.name && touched.name &&
                                                 <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.name}</div>}
                                         </div>
-                                        <div className="input-group my-3">
+                                        <div className="input-group-custom my-3">
                                             <input
-                                                className={classNames('', { "input-invalid": errors.email && touched.email })}
+                                                className={classNames('input', { "input-invalid": errors.email && touched.email })}
                                                 type="email"
                                                 placeholder='Email'
                                                 name="email"
@@ -122,14 +122,15 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                         </div>
 
 
-                                        <div className="input-group my-3">
+                                        <div className="input-group-custom my-3">
                                             <select
-                                                className={classNames('', { "input-invalid": errors.status && touched.status })}
+                                                className={classNames('input', { "input-invalid": errors.status && touched.status })}
                                                 name="status"
                                                 value={values.status}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                style={{ display: "block", height: '2.2rem' }}
+                                                style={{ display: "block", height: '3rem', 
+                                                borderRadius: '.3rem' }}
                                             >
                                                 <option value="" label="Select a status">
                                                     Select a status{" "}
@@ -143,7 +144,8 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                 </option>
                                             </select>
                                             {errors.status && touched.status &&
-                                                <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.status}</div>}
+                                                <div className="input-invalid-feedback" 
+                                                style={{ display: "block" }}>{errors.status}</div>}
                                         </div>
 
                                         <div className="row my-3">
@@ -187,6 +189,9 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                     Female
                                                 </label>
                                             </div>
+                                            {errors.gender && touched.gender &&
+                                                <div className="input-invalid-feedback ps-3" 
+                                                style={{ display: "block" }}>{errors.gender}</div>}
                                         </div>
                                     </div>
                                     <div className="modal-footer">
@@ -196,10 +201,10 @@ const AddModal: React.FC<{ openModal: boolean, setModalOpen: () => void, user?: 
                                                 setInitial({ email: '', name: '', gender: '', status: '' })
                                             }}
                                             data-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary">
-                                            <div className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
+                                        <button type="submit" className="btn btn-primary btn-md">
+                                            <span className={classNames("", { "spinner-border": userStat === 'loading' })} role="status">
 
-                                            </div>
+                                            </span>
                                             <span className={classNames('', { 'd-none': userStat === 'loading' })}> {user === undefined ? 'Add' : 'Update'}</span>
                                         </button>
                                     </div>

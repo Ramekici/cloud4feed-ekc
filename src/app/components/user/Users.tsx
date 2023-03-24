@@ -13,17 +13,12 @@ import { BoxArrowRight, PersonAdd } from 'react-bootstrap-icons';
 export default function Users() {
 
     let navigate = useNavigate();
-    // let location = useLocation();
     const dispatch = useAppDispatch();
-    const [pageSize, setPerSize] = useState<number>(10)
-
+    const [pageSize, setPerSize] = useState<number>(20)
     const modal = useAppSelector(selectModal)
-
     const [currentPage, setCurrentPage] = useState(1);
-
     const [update, setUpdate] = useState<User>()
 
-    // let from = location.state?.from?.pathname || "/";
 
     useEffect(() => {
         dispatch(asyncFetchUsers({ page: currentPage, per_page: pageSize }))
@@ -47,30 +42,31 @@ export default function Users() {
         navigate('/login')
     }
 
-
-
-
-
-
     return (
         <>
-            <AddModal openModal={modal} setModalOpen={() => dispatch(setModal(false))} user={update} />
+            <AddModal 
+                openModal={modal} 
+                setModalOpen={() => dispatch(setModal(false))} 
+                user={update} />
             <div className='row justify-content-end'>
                 <div className="col-3 col-lg-2">
-                    <button className='w-100 btn btn-outline-danger' onClick={logout}><BoxArrowRight /> Logout</button>
+                    <button className='w-100 btn btn-outline-danger' onClick={logout}>
+                    <span className='d-none d-lg-inline pe-2'>Logout</span>
+                     <BoxArrowRight size={24}/></button>
                 </div>
             </div>
             <div className='row'>
                 <div className='col mx-auto'>
-                    <h1 className='mb-5'>Users</h1>
+                    <h1 className='mb-5 text-center mt-5'>Users</h1>
                     <div className="row mb-5 justify-content-end">
                         <div className="col-3 col-lg-2">
-                            <button className="btn btn-primary w-100" data-toggle="modal"
+                            <button className="btn btn-secondary w-100" 
+                                data-toggle="modal"
                                 onClick={() => {
                                     setUpdate(undefined)
                                     dispatch(setModal(true))
                                 }}
-                                data-target="#addModal"><PersonAdd /> Add User</button>
+                                data-target="#addModal"><PersonAdd size={24}/><span className='d-none d-lg-inline ps-2'>Add User</span></button>
                         </div>
                     </div>
                     <div className="row">

@@ -1,8 +1,8 @@
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router';
-import { authAsync } from '../../../features/counter/authSlice';
-import { useAppDispatch } from '../../hooks';
+import { authAsync, selectAuthLoading } from '../../../features/counter/authSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { object, string } from 'yup'
 import classNames from 'classnames';
 import Eye from './Eye';
@@ -10,12 +10,14 @@ import Eye from './Eye';
 const validation = object().shape({
     name: string().required("Kullanici adi gerekli!").min(3, 'Minimum 3 karakter'),
     token: string().required("Token gerekli!")
-    .matches(/^.*(?=.{3,})(?=.*\d)(?=.*[a-zA-Z0-9]).*$/g, 'En az 1 harf ve 1 rakam icermelidir.'),
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/g, 'En az 1 harf, 1 rakam olusmali ve ozel karakter icermemelidir.'),
 });
 
 export default function Auth() {
     let navigate = useNavigate();
     let location = useLocation();
+
+    const loading = useAppSelector(selectAuthLoading);
 
     const [showPass, setShowPass] = useState<boolean>(false)
 
@@ -34,40 +36,14 @@ export default function Auth() {
     const dispatch = useAppDispatch();
 
     return (
-        <div className='h-100 row'>
+        <div className='row align-items-center' style={{height: '80vh'}}>
             <div className='col-12 col-md-8 col-lg-6 mx-auto border-1'>
-                <h1 className='mb-5'>Login</h1>
+                <h1 className='mb-5 text-center'>Login</h1>
                 <Formik
                     initialValues={{ name: '', token: '' }}
                     validationSchema={validation}
-                    // validate={
-
-                    //     values => {
-                    //     let errors = {};
-                    //     if (!values.name) {
-                    //         // errors.name = '';
-                    //         errors = { ...errors, 'name': 'Required' };
-                    //         // } else if (
-                    //         //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                    //         // ) {
-                    //         //     errors = { ...errors, 'name': 'Invalid email address.' };
-                    //         //     //    errors.name = 'Invalid email address.';
-                    //         // }
-                    //     }
-                    //     else if (!values.token) {
-                    //         errors = { ...errors, 'token': 'Required' };
-                    //         // } else if (
-                    //         //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{3,}$/i.test(values.name)
-                    //         // ) {
-                    //         //     errors = { ...errors, 'token': 'Invalid token.' };
-
-                    //         // }
-                    //     }
-                    //     console.log(errors);
-                    //     return errors;
-                    // }}
-                    onSubmit={(values, { setSubmitting }) => {
-                        dispatch(authAsync(values))
+                    onSubmit={ async (values, { setSubmitting }) => {
+                        await dispatch(authAsync(values))
                         let from = location.state?.from?.pathname || "/";
                         navigate(from, { replace: true });
                         localStorage.setItem('token', JSON.stringify({ ...values }))
@@ -84,24 +60,23 @@ export default function Auth() {
                         /* and other goodies */
                     }) => (
                         <form onSubmit={handleSubmit} className='d-flex flex-column'>
-                            <div className="input-group mb-3">
+                            <div className="input-group-custom mb-3">
                                 {/* <label> Kullanici Adi </label> */}
                                 <input
-                                    className={classNames('', { "input-invalid": errors.name && touched.name })}
+                                    className={classNames('input', { "input-invalid": errors.name && touched.name })}
                                     type="text"
                                     placeholder='Kullanici Adi'
                                     name="name"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.name}
-
                                 />
                                 {errors.name && touched.name &&
                                     <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.name}</div>}
                             </div>
-                            <div className="input-group mb-3">
+                            <div className="input-group-custom mb-3">
                                 <input
-                                    className={classNames('', { "input-invalid": errors.token && touched.token })}
+                                    className={classNames('input', { "input-invalid": errors.token && touched.token })}
                                     type={showPass ? "text" : "password"}
                                     placeholder='Token'
                                     name="token"
@@ -116,9 +91,12 @@ export default function Auth() {
                                 {errors.token && touched.token &&
                                     <div className="input-invalid-feedback" style={{ display: "block" }}>{errors.token}</div>}
                             </div>
-                            <button type="submit"
+                            <button
+                                type="submit"
                                 disabled={isSubmitting || !touched.name || !touched.token || errors.name !== undefined || errors.token !== undefined}
-                                className="btn btn-primary mt-5">
+                                className="btn btn-primary btn-lg mt-5">
+                                <span className={classNames("mx-3", { "spinner-border": loading == 'loading' })} role="status">
+                                </span>
                                 Giris
                             </button>
                         </form>

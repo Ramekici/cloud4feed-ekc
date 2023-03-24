@@ -1,60 +1,42 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router';
 import { selectModal, setModal } from '../../../features/counter/userSlice';
-import { selectTodos } from '../../../features/counter/todosSlice';
+import { selectTodos, selectTodosStatus } from '../../../features/counter/todosSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import AddTodo from './AddTodo';
+import { ArrowLeft, Plus } from 'react-bootstrap-icons';
+import TodoItem from './TodoItem';
 
 export default function TodoList() {
   const dispatch = useAppDispatch();
   let navigate = useNavigate();
   const selector = useAppSelector(selectTodos)
+  const status = useAppSelector(selectTodosStatus)
   const modal = useAppSelector(selectModal)
   const { state } = useLocation();
   const { itemId } = state;
-  console.log(selector);
   return (
     <>
       <AddTodo openModal={modal} setModalOpen={() => dispatch(setModal(false))} itemId={itemId} />
       <div className="row">
         <div className="col">
-          <button className="btn btn-secondary btn-outline"
-            onClick={() => { navigate('/') }}> Back to Home </button>
+          <button className="btn btn-outline-info"
+            onClick={() => { navigate('/') }}><ArrowLeft size={32} /> Back to Home </button>
         </div>
       </div>
       <div className='row mt-5'>
         <div className='col mx-auto'>
-          <h1 className='mb-5'> Users Todo List</h1>
-          <div className="row mb-5 aling-items-end">
-            <div className="col">
-              <button className="btn btn-primary" data-toggle="modal"
+          <h1 className='mb-5 text-center'> Users Todo List</h1>
+          <div className="row mb-5 justify-content-end">
+            <div className="col-3 col-lg-2">
+              <button className="btn btn-secondary" data-toggle="modal"
                 onClick={() => dispatch(setModal(true))}
-                data-target="#addModal">Add Todo</button>
+                data-target="#addModal"><Plus size={24} />
+                <span className='d-none d-lg-inline ps-1'> Add Todo </span></button>
             </div>
           </div>
 
-          {selector.length > 0 ? <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">User ID</th>
-                <th scope="col">Title</th>
-                <th scope="col">Date</th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selector.map((item) => {
-                return (
-                  <tr key={item.id}>
-                    <th scope="row" >{item.user_id}</th>
-                    <td>{item.title}</td>
-                    <td>{item.due_on}</td>
-                    <td>{item.status}</td>
-                  </tr>);
-              })}
-            </tbody>
-          </table>
-            : <div className='text-error'> Görüntülenecek Veri Yok </div>}
+          <TodoItem selector={selector} status={status} />
         </div>
       </div>
     </>
